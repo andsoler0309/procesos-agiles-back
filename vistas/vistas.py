@@ -466,14 +466,44 @@ class VistaDetalleChef(Resource):
     @jwt_required()
     def get(self, id_usuario, id_chef):
         usuario = Usuario.query.filter(Usuario.id == id_usuario).first()
-
         if usuario is None:
             return "El Administrador no existe", 404
         elif usuario.rol != Rol.ADMINISTRADOR:
             return "Solo los Administradores pueden ver el detalle del Chef", 401
 
         chef = Usuario.query.filter(Usuario.id == id_chef).first()
+   
+        resultado = usuario_schema.dump(chef)
+        restaurante = Restaurante.query.filter_by(id=resultado["restaurantes"]).first()
+        resultado["restaurante"] = restaurante_schema.dump(restaurante)
+
+        return resultado
+    
+    def put(self, id_usuario, id_chef):
+        usuario = Usuario.query.filter(Usuario.id == id_usuario).first()
+        if usuario is None:
+            return "El Administrador no existe", 404
+        elif usuario.rol != Rol.ADMINISTRADOR:
+            return "Solo los Administradores pueden ver el detalle del Chef", 401
+
+        chef = Usuario.query.filter(Usuario.id == id_chef).first()
+        chef.nombre = request.json["nombre"]
+        chef.usuario = request.json["usuario"]
+        chef.restaurante_id = request.json["restaurante_id"]
+        db.session.commit()
         return usuario_schema.dump(chef)
+    
+    def delete(self, id_usuario, id_chef):
+        usuario = Usuario.query.filter(Usuario.id == id_usuario).first()
+        if usuario is None:
+            return "El Administrador no existe", 404
+        elif usuario.rol != Rol.ADMINISTRADOR:
+            return "Solo los Administradores pueden ver el detalle del Chef", 401
+
+        chef = Usuario.query.filter(Usuario.id == id_chef).first()
+        db.session.delete(chef)
+        db.session.commit()
+        return "", 204
 
 
 class VistaChefs(Resource):
