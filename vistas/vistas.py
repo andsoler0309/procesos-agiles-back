@@ -537,3 +537,4 @@ class VistaChefs(Resource):
             chef["restaurante"] = restaurante_schema.dump(restaurante)
 
         return resultados
+
