@@ -348,7 +348,7 @@ class VistaDetalleRestaurante(Resource):
 
         restaurante = Restaurante.query.filter(Restaurante.id == id_restaurante).first()
         return restaurante_schema.dump(restaurante)
-    
+
     @jwt_required()
     def put(self, id_usuario, id_restaurante):
         usuario = Usuario.query.filter(Usuario.id == id_usuario).first()
@@ -358,21 +358,21 @@ class VistaDetalleRestaurante(Resource):
             return "Solo los Administradores pueden editar el Restaurante", 401
 
         restaurante = Restaurante.query.get_or_404(id_restaurante)
-        restaurante.nombre=request.json["nombre"]
-        restaurante.direccion=request.json["direccion"]
-        restaurante.telefono=request.json["telefono"]
-        restaurante.hora_atencion=request.json["hora_atencion"]
-        restaurante.facebook=request.json["facebook"]
-        restaurante.instagram=request.json["instagram"]
-        restaurante.twitter=request.json["twitter"]
-        restaurante.tipo_comida=request.json["tipo_comida"]
-        restaurante.is_en_lugar=request.json["is_en_lugar"]
-        restaurante.is_domicilios=request.json["is_domicilios"]
-        restaurante.is_rappi=request.json["is_rappi"]
-        restaurante.is_didi=request.json["is_didi"]
+        restaurante.nombre = request.json["nombre"]
+        restaurante.direccion = request.json["direccion"]
+        restaurante.telefono = request.json["telefono"]
+        restaurante.hora_atencion = request.json["hora_atencion"]
+        restaurante.facebook = request.json["facebook"]
+        restaurante.instagram = request.json["instagram"]
+        restaurante.twitter = request.json["twitter"]
+        restaurante.tipo_comida = request.json["tipo_comida"]
+        restaurante.is_en_lugar = request.json["is_en_lugar"]
+        restaurante.is_domicilios = request.json["is_domicilios"]
+        restaurante.is_rappi = request.json["is_rappi"]
+        restaurante.is_didi = request.json["is_didi"]
         db.session.commit()
         return restaurante_schema.dump(restaurante)
-    
+
     @jwt_required()
     def delete(self, id_usuario, id_restaurante):
         usuario = Usuario.query.filter(Usuario.id == id_usuario).first()
