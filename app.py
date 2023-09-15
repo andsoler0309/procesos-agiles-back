@@ -18,6 +18,7 @@ from vistas import (
     VistaChef,
     VistaDetalleChef,
     VistaChefs,
+    VistaEditarMenuSemana,
 )
 
 app = Flask(__name__)
@@ -38,7 +39,7 @@ api = Api(app)
 
 api.add_resource(VistaSignIn, "/signin")
 api.add_resource(VistaLogIn, "/login")
-api.add_resource(VistaIngredientes, "/ingredientes")
+api.add_resource(VistaIngredientes, "/ingredientes/<int:id_usuario>")
 api.add_resource(VistaIngrediente, "/ingrediente/<int:id_ingrediente>")
 api.add_resource(VistaRecetas, "/recetas/<int:id_usuario>")
 api.add_resource(VistaReceta, "/receta/<int:id_receta>")
@@ -50,5 +51,6 @@ api.add_resource(VistaMenuSemana, "/menu-semana/<int:id_usuario>")
 api.add_resource(VistaDetalleChef, "/chef/<int:id_usuario>/<int:id_chef>")
 api.add_resource(VistaChef, "/chef/<int:id_usuario>")
 api.add_resource(VistaChefs, "/chefs/<int:id_usuario>")
+api.add_resource(VistaEditarMenuSemana, "/menu-semana/<int:id_usuario>/<int:id_menu>")
 
 jwt = JWTManager(app)
