@@ -24,6 +24,7 @@ from modelos import (
     MenuSemana,
     MenuSemanaSchema,
     MenuReceta,
+    MenuRecetaSchema,
 )
 
 ingrediente_schema = IngredienteSchema()
@@ -32,6 +33,7 @@ receta_schema = RecetaSchema()
 usuario_schema = UsuarioSchema()
 restaurante_schema = RestauranteSchema()
 menu_semana_schema = MenuSemanaSchema()
+menu_receta_schema = MenuRecetaSchema()
 
 
 class VistaSignIn(Resource):
@@ -413,7 +415,16 @@ class VistaMenuSemana(Resource):
             menu_final = menu_semana_schema.dump(menu)
             menu_final["usuario"] = UsuarioSchema(only=["usuario", "rol"]).dump(usuario)
             menu_final["usuario"]["rol"] = usuario.rol.name
+            
+            recetas = []
+            for menu_receta in menu.recetas:
+                receta_id = menu_receta_schema.dump(menu_receta)["receta"]
+                receta = Receta.query.filter(Receta.id == receta_id).first()
+                recetas.append(receta_schema.dump(receta))
+
+            menu_final["recetas"] = recetas
             result.append(menu_final)
+        
         return result, 200
 
     @jwt_required()
@@ -447,9 +458,9 @@ class VistaMenuSemana(Resource):
             return "Las fechas no tienen la diferencia correcta", 400
 
         todos_menus = MenuSemana.query.filter_by(id_restaurante=id_restaurante).all()
-        for menu in todos_menus:
-            if (fecha_final >= menu.fecha_final >= fecha_inicial) or (
-                fecha_final >= menu.fecha_inicial >= fecha_inicial
+        for menuTemp in todos_menus:
+            if (fecha_final >= menuTemp.fecha_final >= fecha_inicial) or (
+                fecha_final >= menuTemp.fecha_inicial >= fecha_inicial
             ):
                 return "Las fechas tienen conflicto con las de otro menu", 400
 
@@ -466,6 +477,64 @@ class VistaMenuSemana(Resource):
         db.session.add(nuevo_menu_semana)
         db.session.commit()
         return menu_semana_schema.dump(nuevo_menu_semana), 200
+
+class VistaEditarMenuSemana(Resource):
+    @jwt_required()
+    def post(self, id_usuario, id_menu):
+        
+        usuario = Usuario.query.filter(Usuario.id == id_usuario).first()
+        id_restaurante = None
+        if usuario is None:
+            return "El usuario no existe", 404
+        if usuario.rol is Rol.CHEF:
+            id_restaurante = usuario.restaurante_id
+        else:
+            id_restaurante = request.json["id_restaurante"]
+        
+        print("++++++")
+        print(id_menu)
+        menu = MenuSemana.query.filter(
+            MenuSemana.id == id_menu
+        ).first()
+        print(menu)
+        print(menu_semana_schema.dump(menu))
+        if menu is None:
+            return "El menu no existe", 404
+        
+        try:
+            fecha_inicial = datetime.strptime(
+                request.json["fechaInicial"], "%Y-%m-%d"
+            ).date()
+            fecha_final = datetime.strptime(
+                request.json["fechaFinal"], "%Y-%m-%d"
+            ).date()
+        except Exception as e:
+            return str(e), 400
+
+        diff_fecha = fecha_final - fecha_inicial
+        if diff_fecha.days != 6:
+            return "Las fechas no tienen la diferencia correcta", 400
+
+        todos_menus = MenuSemana.query.filter_by(id_restaurante=id_restaurante).filter(MenuSemana.id != id_menu).all() 
+        for menuTemp in todos_menus:
+            if (fecha_final >= menuTemp.fecha_final >= fecha_inicial) or (
+                fecha_final >= menuTemp.fecha_inicial >= fecha_inicial
+            ):
+                return "Las fechas tienen conflicto con las de otro menu", 400
+
+        menu.nombre=request.json["nombre"]
+        menu.fecha_inicial=fecha_inicial
+        menu.fecha_final=fecha_final
+        menu.id_restaurante=id_restaurante
+        menu.id_usuario=id_usuario
+        
+        menu.recetas.clear()
+        for receta_id in request.json["recetas"]:
+            receta_menu = MenuReceta(menu=menu.id, receta=receta_id["id"])
+            menu.recetas.append(receta_menu)
+       # db.session.add(menu)
+        db.session.commit()
+        return menu_semana_schema.dump(menu), 200
 
 
 class VistaChef(Resource):
