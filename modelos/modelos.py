@@ -160,7 +160,7 @@ class MenuRecetaSchema(SQLAlchemyAutoSchema):
         include_fk = True
         load_instance = True
 
-    receta = fields.String()
+    #receta = fields.String()
 
 
 class MenuSemanaSchema(SQLAlchemyAutoSchema):
@@ -173,5 +173,5 @@ class MenuSemanaSchema(SQLAlchemyAutoSchema):
     nombre = fields.String()
     fecha_inicial = fields.Date()
     fecha_final = fields.Date()
-    recetas = fields.List(fields.Nested(MenuRecetaSchema()))
+    recetas = fields.List(fields.Nested(RecetaSchema()))
     usuario = fields.Nested(UsuarioSchema())
