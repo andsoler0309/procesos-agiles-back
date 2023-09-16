@@ -169,3 +169,44 @@ class TestChef(TestCase):
         self.assertIn("usuario", chef)
         self.assertIn("rol", chef)
         self.assertIn("restaurantes", chef)
+
+    def test_editar_chef(self):
+        nuevo_chef = Usuario(
+            nombre=self.data_factory.sentence(),
+            usuario=self.data_factory.sentence(),
+            contrasena=self.data_factory.sentence(),
+            rol=Rol.CHEF,
+            restaurante_id=self.restaurante.id,
+        )
+        db.session.add(nuevo_chef)
+        db.session.commit()
+        self.chefs_creados.append(nuevo_chef)
+
+        chef_id = Usuario.query.filter(Usuario.usuario == nuevo_chef.usuario).first().id
+
+        datos_chef = {
+            "nombre": self.data_factory.sentence(),
+            "usuario": self.data_factory.sentence(),
+            "contrasena": self.data_factory.sentence(),
+            "rol": Rol.CHEF.value,
+            "restaurante_id": self.restaurante.id,
+        }
+
+        solicitud_editar_chef = self.client.put(
+            f"/chef/{self.usuario_id}/{chef_id}",
+            data=json.dumps(datos_chef),
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.token}",
+            },
+        )
+
+        chef = json.loads(solicitud_editar_chef.get_data())
+
+        self.assertEqual(solicitud_editar_chef.status_code, 200)
+
+        self.assertIn("id", chef)
+        self.assertIn("nombre", chef)
+        self.assertIn("usuario", chef)
+        self.assertIn("rol", chef)
+        self.assertIn("restaurantes", chef)
