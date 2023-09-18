@@ -1,5 +1,6 @@
 import json
-
+from operator import itemgetter
+from decimal import Decimal
 from flask import request
 from sqlalchemy.exc import SQLAlchemyError
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
@@ -548,6 +549,70 @@ class VistaEditarMenuSemana(Resource):
         db.session.commit()
         return menu_semana_schema.dump(menu), 200
 
+class VistaCompras(Resource):
+    #@jwt_required()
+    def get(self, id_usuario, id_menu):
+        usuario = Usuario.query.filter(Usuario.id == id_usuario).first()
+        if usuario is None:
+            return "El usuario no existe", 404
+
+        #menu de la semana
+        menu_semana = MenuSemana.query.filter(
+            MenuSemana.id == id_menu
+        ).first()
+
+        
+        result = []
+        resultado = {
+                "ingredientes":[],
+                "total":""
+            }
+        
+        for receta in menu_semana.recetas:
+
+            total = 0
+
+            row = {
+            'nombre_ingrediente':"",
+            'cantidad':"",
+            'costo':"",
+            "porciones":"",
+            'id_ingrediente':"",
+            'sitio_compra':"",
+            'receta_aparece' :[]
+                   }
+            
+            #receta
+            receta_temp1 = Receta.query.filter(Receta.id == receta.receta).first()
+            print(str(receta))
+            for element in receta_temp1.ingredientes:
+                #ingrediente
+                ingrediente = Ingrediente.query.filter(Ingrediente.id == element.ingrediente).first()
+                
+                row.update({'nombre_ingrediente':ingrediente.nombre})
+                row.update({'id_ingrediente':ingrediente.id})
+                row.update({'cantidad':f"{element.cantidad:.2f}"})
+                row.update({'costo':f"{ingrediente.costo:.2f}"})
+                row.update({'sitio_compra':ingrediente.sitio})
+                row.update({'receta_aparece':[receta_temp1.nombre]})
+                
+                if not any(key['id_ingrediente'] == ingrediente.id for key in result):
+                    result.append(row.copy())
+                else:
+                    d = next(item for item in result if item['id_ingrediente'] == ingrediente.id)
+                    cantidad = float(d['cantidad']) + 1
+                    d['cantidad'] = f"{cantidad:.2f}"
+                    costo = float(d['costo']) + 1
+                    d['costo'] = f"{costo:.2f}"
+                    d['sitio-compra'] = ingrediente.sitio 
+                    if not any(receta_temp1.nombre in s for s in d['receta_aparece']):
+                        d['receta_aparece'].append(receta_temp1.nombre)
+
+        #ordenamiento 
+        sorted_result = sorted(result, key=itemgetter('sitio_compra', 'nombre_ingrediente'))
+
+        return sorted_result, 200
+
 
 class VistaChef(Resource):
     @jwt_required()
@@ -675,3 +740,5 @@ class VistaChefs(Resource):
             chef["restaurante"] = restaurante_schema.dump(restaurante)
 
         return resultados
+    
+
