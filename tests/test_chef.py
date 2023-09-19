@@ -210,3 +210,31 @@ class TestChef(TestCase):
         self.assertIn("usuario", chef)
         self.assertIn("rol", chef)
         self.assertIn("restaurantes", chef)
+
+
+    def test_eliminar_chef(self):
+        nuevo_chef = Usuario(
+            nombre=self.data_factory.sentence(),
+            usuario=self.data_factory.sentence(),
+            contrasena=self.data_factory.sentence(),
+            rol=Rol.CHEF,
+            restaurante_id=self.restaurante.id,
+        )
+        db.session.add(nuevo_chef)
+        db.session.commit()
+
+        chef_id = Usuario.query.filter(Usuario.usuario == nuevo_chef.usuario).first().id
+
+        solicitud_eliminar_chef = self.client.delete(
+            f"/chef/{self.usuario_id}/{chef_id}",
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.token}",
+            },
+        )
+
+        self.assertEqual(solicitud_eliminar_chef.status_code, 204)
+
+        chefs = Usuario.query.filter(Usuario.id ==chef_id).all()
+
+        self.assertTrue(len(chefs) == 0 )

@@ -58,7 +58,9 @@ class Usuario(db.Model):
     nombre = db.Column(db.String(128))
     restaurante_id = db.Column(db.Integer, db.ForeignKey("restaurante.id"))
     recetas = db.relationship("Receta", cascade="all, delete, delete-orphan")
-    restaurantes = db.relationship("Restaurante", foreign_keys=[restaurante_id])
+    restaurantes = db.relationship(
+        "Restaurante", 
+        foreign_keys=[restaurante_id])
     menu_semana = db.relationship(
         "MenuSemana",
         cascade="all, delete, delete-orphan",

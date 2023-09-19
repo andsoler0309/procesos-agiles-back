@@ -111,3 +111,45 @@ class TestMenuSemana(TestCase):
         )
         datos_respuesta = json.loads(resultado_get_menu_semana.get_data())
         self.assertEqual(resultado_get_menu_semana.status_code, 200)
+
+    def test_crear_menu_semana(self):
+        nombre_nuevo_menu = self.data_factory.word()
+        fecha_inicial = self.data_factory.date()
+        fecha_final = (
+            datetime.strptime(fecha_inicial, "%Y-%m-%d") + timedelta(days=6)
+        ).strftime("%Y-%m-%d")
+
+        nuevo_menu = {
+            "nombre": nombre_nuevo_menu,
+            "fechaInicial": fecha_inicial,
+            "fechaFinal": fecha_final,
+            "recetas": [{"id": 1}, {"id": 2}, {"id": 3}],
+            "id_restaurante": 1,
+        }
+        endpoint_menu_semana = "/menu-semana/1"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {}".format(self.token),
+        }
+
+        resultado_nuevo_menu_semana = self.client.post(
+            endpoint_menu_semana, data=json.dumps(nuevo_menu), headers=headers
+        )
+        datos_respuesta = json.loads(resultado_nuevo_menu_semana.get_data())
+        menu = MenuSemana.query.get(datos_respuesta["id"])
+        self.menu_semana_creados.append(menu)
+
+        endpoint_editar_menu_semana = "/menu-semana/1/"+datos_respuesta["id"]
+
+        nombre_editado = self.data_factory.name()
+        nuevo_menu["nombre"] = nombre_editado
+        resultado_nuevo_menu_semana = self.client.put(
+            endpoint_editar_menu_semana, data=json.dumps(nuevo_menu), headers=headers
+        )
+        datos_editados_respuesta = json.loads(resultado_nuevo_menu_semana.get_data())
+
+        menu = MenuSemana.query.get(datos_editados_respuesta["id"])
+
+        self.assertEqual(resultado_nuevo_menu_semana.status_code, 200)
+        self.assertEqual(datos_editados_respuesta["nombre"], menu.nombre)
+        self.assertIsNotNone(datos_editados_respuesta["id"])
