@@ -67,7 +67,7 @@ class VistaSignIn(Resource):
         usuario = Usuario.query.get_or_404(id_usuario)
         if usuario.rol == Rol.ADMINISTRADOR:
             return "No puedes eliminar administradores", 403
-        #Receta.query.filter(usuario.)
+        # Receta.query.filter(usuario.)
         db.session.delete(usuario)
         db.session.commit()
         return "", 204
@@ -555,7 +555,7 @@ class VistaChef(Resource):
         restaurante_id = request.json["restaurante_id"]
 
         restaurantes = Restaurante.query.filter(
-            Restaurante.administrador_id==id_usuario
+            Restaurante.administrador_id == id_usuario
         ).all()
 
         if not any(restaurante.id == restaurante_id for restaurante in restaurantes):
@@ -629,7 +629,7 @@ class VistaDetalleChef(Resource):
 
         for menu_semana in chef.menu_semana:
             menu_semana.id_usuario = id_usuario
-        
+
         db.session.commit()
 
         db.session.delete(chef)

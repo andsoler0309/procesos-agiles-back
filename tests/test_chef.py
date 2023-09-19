@@ -211,7 +211,6 @@ class TestChef(TestCase):
         self.assertIn("rol", chef)
         self.assertIn("restaurantes", chef)
 
-
     def test_eliminar_chef(self):
         nuevo_chef = Usuario(
             nombre=self.data_factory.sentence(),
@@ -235,6 +234,6 @@ class TestChef(TestCase):
 
         self.assertEqual(solicitud_eliminar_chef.status_code, 204)
 
-        chefs = Usuario.query.filter(Usuario.id ==chef_id).all()
+        chefs = Usuario.query.filter(Usuario.id == chef_id).all()
 
-        self.assertTrue(len(chefs) == 0 )
+        self.assertTrue(len(chefs) == 0)

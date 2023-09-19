@@ -139,7 +139,7 @@ class TestMenuSemana(TestCase):
         menu = MenuSemana.query.get(datos_respuesta["id"])
         self.menu_semana_creados.append(menu)
 
-        endpoint_editar_menu_semana = "/menu-semana/1/"+datos_respuesta["id"]
+        endpoint_editar_menu_semana = "/menu-semana/1/" + datos_respuesta["id"]
 
         nombre_editado = self.data_factory.name()
         nuevo_menu["nombre"] = nombre_editado
