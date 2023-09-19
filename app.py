@@ -39,7 +39,7 @@ api = Api(app)
 
 api.add_resource(VistaSignIn, "/signin")
 api.add_resource(VistaLogIn, "/login")
-api.add_resource(VistaIngredientes, "/ingredientes/<int:id_usuario>")
+api.add_resource(VistaIngredientes, "/ingredientes")
 api.add_resource(VistaIngrediente, "/ingrediente/<int:id_ingrediente>")
 api.add_resource(VistaRecetas, "/recetas/<int:id_usuario>")
 api.add_resource(VistaReceta, "/receta/<int:id_receta>")
