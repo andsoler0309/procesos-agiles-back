@@ -421,12 +421,18 @@ class VistaMenuSemana(Resource):
 
             recetas = []
             for menu_receta in menu.recetas:
-                receta_id = menu_receta_schema.dump(menu_receta)["receta"]
-                receta = Receta.query.filter(Receta.id == receta_id).first()
-                recetas.append(receta_schema.dump(receta))
+
+                numero_platos = menu_receta.numero_platos
+                receta = Receta.query.filter(Receta.id == menu_receta.id).first()
+
+                receta_temp = {
+                    "receta":receta_schema.dump(receta),
+                    "numero_platos":numero_platos
+                    }
+                recetas.append(receta_temp)
 
             menu_final["recetas"] = recetas
-            result.append(menu_final)
+            result.append(menu_final)     
 
         return result, 200
 
@@ -474,11 +480,11 @@ class VistaMenuSemana(Resource):
             id_restaurante=id_restaurante,
             id_usuario=id_usuario,
         )
-        for receta_id in request.json["recetas"]:
-            receta_menu = MenuReceta(menu=nuevo_menu_semana.id, receta=receta_id["id"])
+        for receta in request.json["recetas"]:
+            receta_menu = MenuReceta(menu=nuevo_menu_semana.id, receta=receta["id"],numero_platos=receta["numero_platos"])
             nuevo_menu_semana.recetas.append(receta_menu)
         db.session.add(nuevo_menu_semana)
-        db.session.commit()
+        db.session.commit()       
         return menu_semana_schema.dump(nuevo_menu_semana), 200
 
 
