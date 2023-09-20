@@ -239,7 +239,12 @@ class TestRestaurante(TestCase):
         db.session.commit()
         self.restaurantes_creados.append(restaurante)
 
-        restaurante_id = Restaurante.query.filter(Restaurante.nombre == restaurante.nombre).filter(Restaurante.administrador_id == self.usuario_id).first().id
+        restaurante_id = (
+            Restaurante.query.filter(Restaurante.nombre == restaurante.nombre)
+            .filter(Restaurante.administrador_id == self.usuario_id)
+            .first()
+            .id
+        )
 
         datos_restaurante = {
             "nombre": self.data_factory.sentence(),
@@ -270,6 +275,6 @@ class TestRestaurante(TestCase):
         restaurante = Restaurante.query.get(datos_respuesta["id"])
 
         self.assertEqual(resultado_editar_restaurante.status_code, 200)
-        self.assertEqual(restaurante.nombre, datos_restaurante['nombre'])
-        self.assertEqual(restaurante.direccion, datos_restaurante['direccion'])
-        self.assertEqual(restaurante.telefono, datos_restaurante['telefono'])
+        self.assertEqual(restaurante.nombre, datos_restaurante["nombre"])
+        self.assertEqual(restaurante.direccion, datos_restaurante["direccion"])
+        self.assertEqual(restaurante.telefono, datos_restaurante["telefono"])
