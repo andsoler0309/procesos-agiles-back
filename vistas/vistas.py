@@ -65,6 +65,9 @@ class VistaSignIn(Resource):
 
     def delete(self, id_usuario):
         usuario = Usuario.query.get_or_404(id_usuario)
+        if usuario.rol == Rol.ADMINISTRADOR:
+            return "No puedes eliminar administradores", 403
+        # Receta.query.filter(usuario.)
         db.session.delete(usuario)
         db.session.commit()
         return "", 204
@@ -481,7 +484,7 @@ class VistaMenuSemana(Resource):
 
 class VistaEditarMenuSemana(Resource):
     @jwt_required()
-    def post(self, id_usuario, id_menu):
+    def put(self, id_usuario, id_menu):
         usuario = Usuario.query.filter(Usuario.id == id_usuario).first()
         id_restaurante = None
         if usuario is None:
@@ -542,16 +545,26 @@ class VistaEditarMenuSemana(Resource):
 class VistaChef(Resource):
     @jwt_required()
     def post(self, id_usuario):
-        usuario = Usuario.query.filter(Usuario.id == id_usuario).first()
+        administrador = Usuario.query.filter(Usuario.id == id_usuario).first()
 
-        if usuario is None:
+        if administrador is None:
             return "El Administrador no existe", 404
-        elif usuario.rol != Rol.ADMINISTRADOR:
+        elif administrador.rol != Rol.ADMINISTRADOR:
             return "Solo los Administradores pueden crear Chef", 401
+
+        restaurante_id = request.json["restaurante_id"]
+
+        restaurantes = Restaurante.query.filter(
+            Restaurante.administrador_id == id_usuario
+        ).all()
+
+        if not any(restaurante.id == restaurante_id for restaurante in restaurantes):
+            return "El restaurante no pertenece al administrador"
 
         usuario = Usuario.query.filter(
             Usuario.usuario == request.json["usuario"]
         ).first()
+
         if usuario is None:
             contrasena_encriptada = hashlib.md5(
                 request.json["contrasena"].encode("utf-8")
@@ -602,13 +615,23 @@ class VistaDetalleChef(Resource):
         return usuario_schema.dump(chef)
 
     def delete(self, id_usuario, id_chef):
-        usuario = Usuario.query.filter(Usuario.id == id_usuario).first()
-        if usuario is None:
+        administrador = Usuario.query.filter(Usuario.id == id_usuario).first()
+        if administrador is None:
             return "El Administrador no existe", 404
-        elif usuario.rol != Rol.ADMINISTRADOR:
+        elif administrador.rol != Rol.ADMINISTRADOR:
             return "Solo los Administradores pueden ver el detalle del Chef", 401
 
         chef = Usuario.query.filter(Usuario.id == id_chef).first()
+        print(chef.recetas)
+        print(chef.menu_semana)
+        for receta in chef.recetas:
+            receta.usuario = id_usuario
+
+        for menu_semana in chef.menu_semana:
+            menu_semana.id_usuario = id_usuario
+
+        db.session.commit()
+
         db.session.delete(chef)
         db.session.commit()
         return "", 204
