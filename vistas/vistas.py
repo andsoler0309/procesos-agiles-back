@@ -580,11 +580,8 @@ class VistaCompras(Resource):
             'sitio_compra':"",
             'receta_aparece' :[]
                    }
-            
 
             numero_platos = receta.numero_platos
-            #row.update({"numero_platos":receta.numero_platos})  
-            
             #receta
             receta_temp1 = Receta.query.filter(Receta.id == receta.receta).first()
            
@@ -615,7 +612,6 @@ class VistaCompras(Resource):
                     d['sitio_compra'] = ingrediente.sitio 
                     if not any(receta_temp1.nombre in s for s in d['receta_aparece']):
                         d['receta_aparece'].append(receta_temp1.nombre)
-                #costoTotal += (costo_acumulado +float(costo_total) )
                 
                 value += float(row['costo_x_cantidad'])
                 
