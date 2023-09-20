@@ -160,6 +160,7 @@ class MenuRecetaSchema(SQLAlchemyAutoSchema):
         include_relationships = True
         include_fk = True
         load_instance = True
+
     numero_platos = fields.Integer()
     # receta = fields.String()
 
