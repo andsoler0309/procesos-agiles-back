@@ -217,3 +217,59 @@ class TestRestaurante(TestCase):
         self.assertIn("direccion", restaurante)
         self.assertIn("hora_atencion", restaurante)
         self.assertIn("menu_semana", restaurante)
+
+    def test_editar_restaurante(self):
+        restaurante = Restaurante(
+            nombre=self.data_factory.sentence(),
+            direccion=self.data_factory.sentence(),
+            telefono=self.data_factory.sentence(),
+            facebook=self.data_factory.sentence(),
+            twitter=self.data_factory.sentence(),
+            instagram=self.data_factory.sentence(),
+            hora_atencion=self.data_factory.sentence(),
+            is_en_lugar=random.choice([True, False]),
+            is_domicilios=random.choice([True, False]),
+            tipo_comida=self.data_factory.sentence(),
+            is_rappi=random.choice([True, False]),
+            is_didi=random.choice([True, False]),
+            administrador_id=self.usuario_id,
+        )
+
+        db.session.add(restaurante)
+        db.session.commit()
+        self.restaurantes_creados.append(restaurante)
+
+        restaurante_id = Restaurante.query.filter(Restaurante.nombre == restaurante.nombre).filter(Restaurante.administrador_id == self.usuario_id).first().id
+
+        datos_restaurante = {
+            "nombre": self.data_factory.sentence(),
+            "direccion": self.data_factory.sentence(),
+            "telefono": self.data_factory.sentence(),
+            "facebook": self.data_factory.sentence(),
+            "twitter": self.data_factory.sentence(),
+            "instagram": self.data_factory.sentence(),
+            "hora_atencion": self.data_factory.sentence(),
+            "is_en_lugar": random.choice([True, False]),
+            "is_domicilios": random.choice([True, False]),
+            "tipo_comida": self.data_factory.sentence(),
+            "is_rappi": random.choice([True, False]),
+            "is_didi": random.choice([True, False]),
+        }
+
+        endpoint_restaurante = f"/restaurantes/{self.usuario_id}/{restaurante_id}"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.token}",
+        }
+
+        resultado_editar_restaurante = self.client.put(
+            endpoint_restaurante, data=json.dumps(datos_restaurante), headers=headers
+        )
+
+        datos_respuesta = json.loads(resultado_editar_restaurante.get_data())
+        restaurante = Restaurante.query.get(datos_respuesta["id"])
+
+        self.assertEqual(resultado_editar_restaurante.status_code, 200)
+        self.assertEqual(restaurante.nombre, datos_restaurante['nombre'])
+        self.assertEqual(restaurante.direccion, datos_restaurante['direccion'])
+        self.assertEqual(restaurante.telefono, datos_restaurante['telefono'])
