@@ -94,6 +94,7 @@ class MenuReceta(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     menu = db.Column(db.Integer, db.ForeignKey("menu_semana.id"))
     receta = db.Column(db.Integer, db.ForeignKey("receta.id"))
+    numero_platos = db.Column(db.Integer)
 
 
 class RestauranteSchema(SQLAlchemyAutoSchema):
@@ -160,6 +161,7 @@ class MenuRecetaSchema(SQLAlchemyAutoSchema):
         include_fk = True
         load_instance = True
 
+    numero_platos = fields.Integer()
     # receta = fields.String()
 
 
@@ -173,5 +175,5 @@ class MenuSemanaSchema(SQLAlchemyAutoSchema):
     nombre = fields.String()
     fecha_inicial = fields.Date()
     fecha_final = fields.Date()
-    recetas = fields.List(fields.Nested(RecetaSchema()))
+    recetas = fields.List(fields.Nested(MenuRecetaSchema()))
     usuario = fields.Nested(UsuarioSchema())
