@@ -80,7 +80,11 @@ class TestMenuSemana(TestCase):
             "nombre": nombre_nuevo_menu,
             "fechaInicial": fecha_inicial,
             "fechaFinal": fecha_final,
-            "recetas": [{"id": 1}, {"id": 2}, {"id": 3}],
+            "recetas": [
+                {"id": 1, "numero_platos": 5},
+                {"id": 2, "numero_platos": 2},
+                {"id": 3, "numero_platos": 7},
+            ],
             "id_restaurante": 1,
         }
         endpoint_menu_semana = "/menu-semana/1"
@@ -123,7 +127,11 @@ class TestMenuSemana(TestCase):
             "nombre": nombre_nuevo_menu,
             "fechaInicial": fecha_inicial,
             "fechaFinal": fecha_final,
-            "recetas": [{"id": 1}, {"id": 2}, {"id": 3}],
+            "recetas": [
+                {"id": 1, "numero_platos": 5},
+                {"id": 2, "numero_platos": 2},
+                {"id": 3, "numero_platos": 7},
+            ],
             "id_restaurante": 1,
         }
         endpoint_menu_semana = "/menu-semana/1"
