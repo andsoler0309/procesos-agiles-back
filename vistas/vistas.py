@@ -52,7 +52,6 @@ class VistaSignIn(Resource):
             )
             db.session.add(nuevo_usuario)
             db.session.commit()
-            token_de_acceso = create_access_token(identity=nuevo_usuario.id)
             return {"mensaje": "usuario creado exitosamente", "id": nuevo_usuario.id}
         else:
             return "El usuario ya existe", 404
@@ -83,7 +82,6 @@ class VistaLogIn(Resource):
             Usuario.contrasena == contrasena_encriptada,
         ).first()
         db.session.commit()
-        print(str(hashlib.md5("admin".encode("utf-8")).hexdigest()))
         if usuario is None:
             return "El usuario no existe", 404
         else:
