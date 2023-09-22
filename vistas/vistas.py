@@ -489,7 +489,6 @@ class VistaMenuSemana(Resource):
         db.session.commit()
         return menu_semana_schema.dump(nuevo_menu_semana), 200
 
-
 class VistaEditarMenuSemana(Resource):
     @jwt_required()
     def get(self, id_usuario, id_menu):
