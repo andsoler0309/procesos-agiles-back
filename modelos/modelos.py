@@ -141,6 +141,7 @@ class RecetaSchema(SQLAlchemyAutoSchema):
     id = fields.String()
     duracion = fields.String()
     porcion = fields.String()
+    nombre = fields.String()
     ingredientes = fields.List(fields.Nested(RecetaIngredienteSchema()))
 
 
