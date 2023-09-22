@@ -492,6 +492,52 @@ class VistaMenuSemana(Resource):
 
 class VistaEditarMenuSemana(Resource):
     @jwt_required()
+    def get(self, id_usuario, id_menu):
+        usuario = Usuario.query.filter(Usuario.id == id_usuario).first()
+        if usuario is None:
+            return "El usuario no existe ", 404
+        if usuario.rol is Rol.CHEF:
+            menu = MenuSemana.query.filter_by(
+                id_restaurante=usuario.restaurante_id, id = id_menu
+            ).first()
+            if menu is None:
+                return "El menu no existe", 404
+        else:
+            lista_restaurantes_id = [
+                restaurante.id
+                for restaurante in Restaurante.query.filter_by(
+                    administrador_id=id_usuario
+                ).all()
+            ]
+            menu = MenuSemana.query.filter(
+                MenuSemana.id_restaurante.in_(lista_restaurantes_id), MenuSemana.id == id_menu
+            ).first()
+            if menu is None:
+                return "El menu no existe", 404
+
+        usuario = Usuario.query.filter_by(id=menu.id_usuario).first()
+        menu_final = menu_semana_schema.dump(menu)
+        menu_final["usuario"] = UsuarioSchema(only=["usuario", "rol"]).dump(usuario)
+        menu_final["usuario"]["rol"] = usuario.rol.name
+
+        recetas = []
+        for menu_receta in menu.recetas:
+            numero_platos = menu_receta.numero_platos
+            receta = Receta.query.filter(Receta.id == menu_receta.id).first()
+
+            receta_temp = {
+                "receta": receta_schema.dump(receta),
+                "numero_platos": numero_platos,
+            }
+            recetas.append(receta_temp)
+        
+        restaurante = Restaurante.query.filter_by(id=menu.id_restaurante).first()
+        print(restaurante)
+        menu_final["recetas"] = recetas
+        menu_final["restaurante"] = RestauranteSchema(only=["id", "nombre"]).dump(restaurante)
+        return menu_final, 200
+     
+    @jwt_required()
     def put(self, id_usuario, id_menu):
         usuario = Usuario.query.filter(Usuario.id == id_usuario).first()
         id_restaurante = None

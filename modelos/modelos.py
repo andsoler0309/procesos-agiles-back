@@ -178,3 +178,4 @@ class MenuSemanaSchema(SQLAlchemyAutoSchema):
     fecha_final = fields.Date()
     recetas = fields.List(fields.Nested(MenuRecetaSchema()))
     usuario = fields.Nested(UsuarioSchema())
+    restaurante = fields.Nested(RestauranteSchema())
