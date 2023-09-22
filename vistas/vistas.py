@@ -549,6 +549,7 @@ class VistaEditarMenuSemana(Resource):
         db.session.commit()
         return menu_semana_schema.dump(menu), 200
 
+
 class VistaCompras(Resource):
     @jwt_required()
     def get(self, id_usuario, id_menu):
@@ -556,70 +557,73 @@ class VistaCompras(Resource):
         if usuario is None:
             return "El usuario no existe", 404
 
-        #menu de la semana
-        menu_semana = MenuSemana.query.filter(
-            MenuSemana.id == id_menu
-        ).first()
+        # menu de la semana
+        menu_semana = MenuSemana.query.filter(MenuSemana.id == id_menu).first()
 
-        
         result = []
-        resultado = {
-                "ingredientes":[],
-                "total":""
-            }
-        
+        resultado = {"ingredientes": [], "total": ""}
+
         value = 0.0
         for receta in menu_semana.recetas:
-
             row = {
-            'nombre_ingrediente':"",
-            'cantidad_porcion':"",
-            'valor_unitario':"",
-            'costo_x_cantidad':"",
-            'id_ingrediente':"",
-            'sitio_compra':"",
-            'receta_aparece' :[]
-                   }
+                "nombre_ingrediente": "",
+                "cantidad_porcion": "",
+                "valor_unitario": "",
+                "costo_x_cantidad": "",
+                "id_ingrediente": "",
+                "sitio_compra": "",
+                "receta_aparece": [],
+            }
 
             numero_platos = receta.numero_platos
-            #receta
+            # receta
             receta_temp1 = Receta.query.filter(Receta.id == receta.receta).first()
-           
+
             for element in receta_temp1.ingredientes:
-                #ingrediente
+                # ingrediente
                 costo_acumulado = 0.0
-                ingrediente = Ingrediente.query.filter(Ingrediente.id == element.ingrediente).first()
-                row.update({'nombre_ingrediente':ingrediente.nombre})
-                row.update({'id_ingrediente':ingrediente.id})
+                ingrediente = Ingrediente.query.filter(
+                    Ingrediente.id == element.ingrediente
+                ).first()
+                row.update({"nombre_ingrediente": ingrediente.nombre})
+                row.update({"id_ingrediente": ingrediente.id})
                 total_cantidad_platos = numero_platos * element.cantidad
-                row.update({'cantidad_porcion':f"{total_cantidad_platos:.2f}"})
-                row.update({'valor_unitario':f"{ingrediente.costo:.2f}"})
+                row.update({"cantidad_porcion": f"{total_cantidad_platos:.2f}"})
+                row.update({"valor_unitario": f"{ingrediente.costo:.2f}"})
                 costo_total = total_cantidad_platos * ingrediente.costo
-                row.update({'costo_x_cantidad':f"{costo_total:.2f}"})
-                row.update({'sitio_compra':ingrediente.sitio})
-                row.update({'receta_aparece':[receta_temp1.nombre]})
-                
-                if not any(key['id_ingrediente'] == ingrediente.id for key in result):
+                row.update({"costo_x_cantidad": f"{costo_total:.2f}"})
+                row.update({"sitio_compra": ingrediente.sitio})
+                row.update({"receta_aparece": [receta_temp1.nombre]})
+
+                if not any(key["id_ingrediente"] == ingrediente.id for key in result):
                     result.append(row.copy())
                 else:
-                    d = next(item for item in result if item['id_ingrediente'] == ingrediente.id)
+                    d = next(
+                        item
+                        for item in result
+                        if item["id_ingrediente"] == ingrediente.id
+                    )
                     total_cantidad_platos = numero_platos * element.cantidad
-                    cantidad = float(d['cantidad_porcion']) + (float(total_cantidad_platos))
-                    d['cantidad_porcion'] = f"{cantidad:.2f}"
+                    cantidad = float(d["cantidad_porcion"]) + (
+                        float(total_cantidad_platos)
+                    )
+                    d["cantidad_porcion"] = f"{cantidad:.2f}"
                     costo_total = total_cantidad_platos * ingrediente.costo
-                    costo_acumulado = float(d['costo_x_cantidad']) + float(costo_total)
-                    d['costo_x_cantidad'] = f"{costo_acumulado:.2f}"
-                    d['sitio_compra'] = ingrediente.sitio 
-                    if not any(receta_temp1.nombre in s for s in d['receta_aparece']):
-                        d['receta_aparece'].append(receta_temp1.nombre)
-                
-                value += float(row['costo_x_cantidad'])
-                
-        #ordenamiento 
-        sorted_result = sorted(result, key=itemgetter('sitio_compra', 'nombre_ingrediente'))
+                    costo_acumulado = float(d["costo_x_cantidad"]) + float(costo_total)
+                    d["costo_x_cantidad"] = f"{costo_acumulado:.2f}"
+                    d["sitio_compra"] = ingrediente.sitio
+                    if not any(receta_temp1.nombre in s for s in d["receta_aparece"]):
+                        d["receta_aparece"].append(receta_temp1.nombre)
 
-        resultado['ingredientes'] = sorted_result
-        resultado['total'] = f"{value:.2f}"
+                value += float(row["costo_x_cantidad"])
+
+        # ordenamiento
+        sorted_result = sorted(
+            result, key=itemgetter("sitio_compra", "nombre_ingrediente")
+        )
+
+        resultado["ingredientes"] = sorted_result
+        resultado["total"] = f"{value:.2f}"
         return resultado, 200
 
 
@@ -749,5 +753,3 @@ class VistaChefs(Resource):
             chef["restaurante"] = restaurante_schema.dump(restaurante)
 
         return resultados
-    
-

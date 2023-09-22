@@ -5,7 +5,16 @@ from unittest import TestCase
 from faker import Faker
 from faker.generator import random
 from datetime import datetime, timedelta
-from modelos import db, Usuario, MenuSemana, Receta,Ingrediente, Rol, RecetaIngrediente, Restaurante
+from modelos import (
+    db,
+    Usuario,
+    MenuSemana,
+    Receta,
+    Ingrediente,
+    Rol,
+    RecetaIngrediente,
+    Restaurante,
+)
 
 
 from app import app
@@ -45,12 +54,11 @@ class TestCompras(TestCase):
         self.recetas_creadas = []
         self.menu_semana_creados = []
         self.restaurantes_creados = []
-        
+
         self.crear_ingrediente()
         self.crear_receta()
         self.crear_restaurante()
         self.crear_menu_semana()
-        
 
     def test_calcular_compras(self):
         endpoint_menu_semana = "/menu-compras/1/1"
@@ -65,9 +73,8 @@ class TestCompras(TestCase):
 
         datos_respuesta = json.loads(resultado_get_menu_compras.get_data())
         self.assertEqual(resultado_get_menu_compras.status_code, 200)
-        self.assertEqual(datos_respuesta["total"], '60.00')
+        self.assertEqual(datos_respuesta["total"], "60.00")
         self.assertEqual(len(datos_respuesta["ingredientes"]), 1)
-        
 
     def tearDown(self):
         for menu_creado in self.menu_semana_creados:
@@ -84,7 +91,7 @@ class TestCompras(TestCase):
             receta = Receta.query.get(receta_creada.id)
             db.session.delete(receta)
             db.session.commit()
-        
+
         for ingrediente_creado in self.ingredientes_creados:
             ingrediente = Ingrediente.query.get(ingrediente_creado.id)
             db.session.delete(ingrediente)
@@ -95,7 +102,7 @@ class TestCompras(TestCase):
         db.session.commit()
 
     # Crear restaurante
-    def crear_restaurante(self):    
+    def crear_restaurante(self):
         nombre_nuevo_restaurante = self.data_factory.sentence()
         direccion_nuevo_restaurante = self.data_factory.sentence()
         telefono_nuevo_restaurante = self.data_factory.sentence()
@@ -112,7 +119,7 @@ class TestCompras(TestCase):
 
         # Crear el json con el restaurante a crear
         nuevo_restaurante = {
-            "id":111,
+            "id": 111,
             "nombre": nombre_nuevo_restaurante,
             "direccion": direccion_nuevo_restaurante,
             "telefono": telefono_nuevo_restaurante,
@@ -143,7 +150,6 @@ class TestCompras(TestCase):
 
     # Crear ingrediente
     def crear_ingrediente(self):
-
         nombre_nuevo_ingrediente = "gomas"
         unidad_nuevo_ingrediente = self.data_factory.sentence()
         costo_nuevo_ingrediente = 1.0
@@ -152,12 +158,12 @@ class TestCompras(TestCase):
 
         # Crear el json con el ingrediente a crear
         nuevo_ingrediente1 = Ingrediente(
-            id = 999,
-            nombre = nombre_nuevo_ingrediente,
-            unidad = unidad_nuevo_ingrediente,
-            costo = costo_nuevo_ingrediente,
-            calorias = calorias_nuevo_ingrediente,
-            sitio = sitio_nuevo_ingrediente,
+            id=999,
+            nombre=nombre_nuevo_ingrediente,
+            unidad=unidad_nuevo_ingrediente,
+            costo=costo_nuevo_ingrediente,
+            calorias=calorias_nuevo_ingrediente,
+            sitio=sitio_nuevo_ingrediente,
         )
 
         db.session.add(nuevo_ingrediente1)
@@ -166,21 +172,12 @@ class TestCompras(TestCase):
 
     # Crear Receta
     def crear_receta(self):
-        nueva_receta_ingrediente = RecetaIngrediente(
-            cantidad = 2,
-            ingrediente = int(999)
-            )
-        nueva_receta_ingrediente2 = RecetaIngrediente(
-        cantidad = 2,
-        ingrediente = int(999)
-        )
-        nueva_receta_ingrediente3 = RecetaIngrediente(
-        cantidad = 2,
-        ingrediente = int(999)
-        )
-        
+        nueva_receta_ingrediente = RecetaIngrediente(cantidad=2, ingrediente=int(999))
+        nueva_receta_ingrediente2 = RecetaIngrediente(cantidad=2, ingrediente=int(999))
+        nueva_receta_ingrediente3 = RecetaIngrediente(cantidad=2, ingrediente=int(999))
+
         nueva_receta = Receta(
-            id = 777,
+            id=777,
             nombre="varias gomas",
             duracion=self.data_factory.random_int(),
             porcion=2,
@@ -195,7 +192,7 @@ class TestCompras(TestCase):
         db.session.commit()
         self.recetas_creadas.append(nueva_receta)
 
-    #Crear Menu semana
+    # Crear Menu semana
     def crear_menu_semana(self):
         nombre_nuevo_menu = self.data_factory.word()
         fecha_inicial = self.data_factory.date()
@@ -207,9 +204,7 @@ class TestCompras(TestCase):
             "nombre": nombre_nuevo_menu,
             "fechaInicial": fecha_inicial,
             "fechaFinal": fecha_final,
-            "recetas": [
-                {"id": 777, "numero_platos": 10}
-            ],
+            "recetas": [{"id": 777, "numero_platos": 10}],
             "id_restaurante": 111,
         }
         endpoint_menu_semana = "/menu-semana/1"
@@ -224,5 +219,3 @@ class TestCompras(TestCase):
         datos_respuesta = json.loads(resultado_nuevo_menu_semana.get_data())
         menu = MenuSemana.query.get(datos_respuesta["id"])
         self.menu_semana_creados.append(menu)
-
-
