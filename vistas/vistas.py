@@ -496,7 +496,7 @@ class VistaEditarMenuSemana(Resource):
     def get(self, id_usuario, id_menu):
         usuario = Usuario.query.filter(Usuario.id == id_usuario).first()
         if usuario is None:
-            return "El usuario no existe", 404
+            return "El usuario no existe ", 404
         if usuario.rol is Rol.CHEF:
             menu = MenuSemana.query.filter_by(
                 id_restaurante=usuario.restaurante_id, id = id_menu
